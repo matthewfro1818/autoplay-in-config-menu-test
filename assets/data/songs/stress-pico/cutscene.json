@@ -1,0 +1,14 @@
+{
+	"startCutscene": {
+	  "name": "StressPicoIntro",
+	  "args": [],
+	  "storyOnly": false,
+	  "playOnce": true
+	},
+	"endCutscene": {
+		"name": "StressPicoEnding",
+		"args": [],
+		"storyOnly": false,
+		"playOnce": true
+	}
+}

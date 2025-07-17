@@ -1,0 +1,215 @@
+import flixel.math.FlxAngle;
+import flixel.FlxG;
+import flixel.FlxSprite;
+import flixel.math.FlxPoint;
+import flixel.FlxObject;
+import shaders.DropShadowShader;
+import shaders.AdjustColorShader;
+import objects.TankmenBG;
+
+class TankErect extends BaseStage
+{
+
+	var tankmanRun:FlxGroup;
+	var updateFunctions:Array<Void->Void> = [];
+
+	var leftLightPoint = new FlxPoint(280, 200);
+	var rightLightPoint = new FlxPoint(1350, 200);
+
+	var sniper:FlxSprite;
+	var guy:FlxSprite;
+
+	var neneKnife:FlxSprite;
+	var neneKnifeTracking:FlxObject;
+	var neneKnifeStartPos:FlxPoint;
+	var neneKnifeShader:DropShadowShader;
+	var neneKnifeGravity:Float = 0;
+	var neneKnifeMoveTime:Float = 0;
+
+	var bfShader:DropShadowShader;
+	var dadShader:DropShadowShader;
+	var gfShader:DropShadowShader;
+
+	public function new(){
+		super();
+		
+		name = "tankErect";
+		startingZoom = 0.7;
+
+		var bg = new FlxSprite(-985, -805).loadGraphic(Paths.image("week7/stage/erect/bg"));
+		bg.antialiasing = true;
+		bg.scale.set(1.15, 1.15);
+		bg.updateHitbox();
+		addToBackground(bg);
+
+		sniper = new FlxSprite(-127, 349);
+		sniper.frames = Paths.getSparrowAtlas("week7/stage/erect/sniper");
+		sniper.antialiasing = true;
+		sniper.scale.set(1.15, 1.15);
+		sniper.updateHitbox();
+		sniper.animation.addByPrefix("idle", "Tankmanidlebaked instance 1", 24, false);
+		sniper.animation.addByPrefix("sip", "tanksippingBaked instance 1", 24, false);
+		sniper.animation.play("idle");
+		addToBackground(sniper);
+
+		guy = new FlxSprite(1398, 407);
+		guy.frames = Paths.getSparrowAtlas("week7/stage/erect/guy");
+		guy.antialiasing = true;
+		guy.scale.set(1.15, 1.15);
+		guy.updateHitbox();
+		guy.animation.addByPrefix("idle", "BLTank2 instance 1", 24, false);
+		guy.animation.play("idle");
+		addToBackground(guy);
+		
+		neneKnife = new FlxSprite(950, 500);
+		neneKnife.frames = Paths.getSparrowAtlas("week7/neneKnifeThrow");
+		neneKnife.antialiasing = true;
+		neneKnife.visible = false;
+		neneKnife.animation.addByPrefix("spin", "", 30, true);
+		neneKnife.animation.play("spin");
+		neneKnifeStartPos = neneKnife.getPosition();
+		addToForeground(neneKnife);
+
+		neneKnifeTracking = new FlxObject(neneKnifeStartPos.x, neneKnifeStartPos.y);
+		addToUpdate(neneKnifeTracking);
+
+		tankmanRun = ScriptingUtil.makeFlxSpriteGroup();
+		addToBackground(tankmanRun);
+
+		dadStart.set(140, 900);
+		bfStart.set(1340.5, 885);
+		gfStart.set(800.5, 775);
+
+		bfCameraOffset.set(-200, 0);
+		dadCameraOffset.set(200, 0);
+
+		if(gf.curCharacter == "otis-speaker" && PlayState.SONG.song.toLowerCase() == "stress-pico"){
+			TankmenBG.loadMappedAnims("picospeaker", "stress-pico");
+
+			var tempTankman:TankmenBG = new TankmenBG(20, 2000, true);
+			tempTankman.strumTime = 10;
+			tempTankman.resetShit(20, 2000, true);
+			tankmanRun.add(tempTankman);
+
+			for (i in 0...TankmenBG.animationNotes.length){
+				if (FlxG.random.bool(16)){
+					var tankman:TankmenBG = tankmanRun.recycle(TankmenBG);
+					// new TankmenBG(500, 200 + FlxG.random.int(50, 100), TankmenBG.animationNotes[i][1] < 2);
+					tankman.strumTime = TankmenBG.animationNotes[i][0];
+					tankman.resetShit(500, 230 + FlxG.random.int(50, 80), TankmenBG.animationNotes[i][1] >= 2);
+					tankmanRun.add(tankman);
+					
+					var tankmanRunShader = new DropShadowShader();
+					tankmanRunShader.setAdjustColor(-46, -38, -25, -20);
+					tankmanRunShader.color = 0xFFDFEF3C;
+					tankmanRunShader.angle = tankman.goingRight ? 45 : 135;
+					tankmanRunShader.threshold = 0.4;
+					tankmanRunShader.attachedSprite = tankman;
+					tankman.shader = tankmanRunShader;
+					tankman.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int){
+						tankmanRunShader.updateFrameInfo(tankman.frame);
+					};
+
+					
+					updateFunctions.push(function(){
+						if(tankman.alive && tankman.visible){
+							if(tankman.goingRight){
+								tankmanRunShader.angle = (Math.atan2(-(leftLightPoint.y - tankman.getMidpoint().y), leftLightPoint.x - tankman.getMidpoint().x)) * FlxAngle.TO_DEG;
+							}
+							else{
+								tankmanRunShader.angle = (Math.atan2(-(rightLightPoint.y - tankman.getMidpoint().y), rightLightPoint.x - tankman.getMidpoint().x)) * FlxAngle.TO_DEG;
+							}
+						}
+					});
+				}
+			}
+		}
+
+		bfShader = new DropShadowShader();
+		bfShader.setAdjustColor(-46, -38, -25, -20);
+    	bfShader.color = 0xFFDFEF3C;
+		bfShader.angle = 90;
+		bfShader.attachCharacter(boyfriend);
+		boyfriend.applyShader(bfShader);
+
+		dadShader = new DropShadowShader();
+		dadShader.setAdjustColor(-46, -38, -25, -20);
+    	dadShader.color = 0xFFDFEF3C;
+		dadShader.angle = 45;
+		dadShader.attachCharacter(dad);
+		dad.applyShader(dadShader);
+
+		gfShader = new DropShadowShader();
+		gfShader.setAdjustColor(-46, -38, -25, -20);
+    	gfShader.color = 0xFFDFEF3C;
+		gfShader.angle = 90;
+		gfShader.attachedSprite = gf.getSprite();
+		gfShader.attachCharacter(gf);
+		gf.applyShader(gfShader);
+
+		neneKnifeShader = new DropShadowShader();
+		neneKnifeShader.setAdjustColor(-46, -38, -25, -20);
+		neneKnifeShader.color = 0xFFDFEF3C;
+		neneKnifeShader.angle = 90;
+		neneKnifeShader.threshold = 0.4;
+		neneKnifeShader.attachedSprite = neneKnife;
+		neneKnife.shader = neneKnifeShader;
+		neneKnife.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int){
+			neneKnifeShader.updateFrameInfo(neneKnife.frame);
+			neneKnife.setPosition(neneKnifeTracking.x, neneKnifeTracking.y);
+		};
+
+		addEvent("tankErect-throwKnife", throwKnife);
+		addEvent("tankErect-hideKnife", hideKnife);
+	}
+
+	public override function update(elapsed:Float){
+		super.update(elapsed);
+		if(neneKnife.visible){ neneKnifeTracking.velocity.y += neneKnifeGravity * elapsed; }
+		for(func in updateFunctions){ func(); }
+	}
+
+	public override function beat(curBeat:Int){
+		if(curBeat % 2 == 0){
+			guy.animation.play("idle", true);
+			if(sniper.animation.curAnim.name != "sip" || sniper.animation.curAnim.finished){
+				sniper.animation.play(FlxG.random.bool(2) ? "sip" : "idle", true);
+			}
+		}
+	}
+
+	override function gameOverLoop() {
+		if(PlayState.SONG.song.toLowerCase() == "ugh-pico" || PlayState.SONG.song.toLowerCase() == "guns-pico" || PlayState.SONG.song.toLowerCase() == "stress-pico"){
+			FlxG.sound.music.volume = 0.2;
+			FlxG.sound.play(Paths.sound('week7/jeffGameover-pico/jeffGameover-' + FlxG.random.int(1, 10)), 1, false, null, true, function(){
+				if(FlxG.sound.music.playing){
+					FlxG.sound.music.fadeIn(2.5, 0.2, 1);
+				}
+			});
+		}
+		else{
+			FlxG.sound.music.volume = 0.2;
+			FlxG.sound.play(Paths.sound('week7/jeffGameover/jeffGameover-' + FlxG.random.int(1, 25)), 1, false, null, true, function(){
+				if(FlxG.sound.music.playing){
+					FlxG.sound.music.fadeIn(2.5, 0.2, 1);
+				}
+			});
+		}
+	}
+
+	public function throwKnife(tag:String):Void{
+		var args = Events.getArgs(tag, ["0", "0", "0"]);
+		neneKnife.setPosition(neneKnifeStartPos.x, neneKnifeStartPos.y);
+		neneKnife.visible = true;
+		neneKnife.animation.play("spin", true);
+		neneKnifeTracking.setPosition(neneKnifeStartPos.x, neneKnifeStartPos.y);
+		neneKnifeTracking.velocity.set(Std.parseFloat(args[0]), Std.parseFloat(args[1]));
+		neneKnifeGravity = Std.parseFloat(args[2]);
+	}
+
+	public function hideKnife(tag:String):Void{
+		neneKnife.visible = false;
+		neneKnifeTracking.velocity.set(0, 0);
+	}
+
+}
