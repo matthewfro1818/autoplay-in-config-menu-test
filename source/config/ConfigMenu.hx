@@ -113,6 +113,7 @@ class ConfigMenu extends FlxUIStateExt
 	var extraCamMovementValue:Bool;
 	var camBopAmountValue:Int;
 	final camBopAmountTypes:Array<String> = ["on", "reduced", "off"];
+	final AutoPlayTypes:Array<String> = ["on", "off"];
 	var showCaptionsValue:Bool;
 	var showAccuracyValue:Bool;
 	var showMissesValue:Int;
@@ -665,6 +666,7 @@ class ConfigMenu extends FlxUIStateExt
 		Config.healthDrainMultiplier = healthDrainValue / 10.0;
 		Config.comboType = comboValue;
 		Config.downscroll = downValue;
+		Config.autoplay = AutoPlayTypes;
 		Config.noteGlow = glowValue;
 		Config.ghostTapType = randomTapValue;
 		Config.framerate = allowedFramerates[framerateValue];
