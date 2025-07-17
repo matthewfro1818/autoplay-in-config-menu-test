@@ -30,6 +30,8 @@ class Config
 	public static var autoPause:Bool = true;
 	public static var flashingLights:Bool = true;
 
+	public static var autoplay:Bool = false;
+
 	public static var ee1:Bool = false;
 	public static var ee2:Bool = false;
 
