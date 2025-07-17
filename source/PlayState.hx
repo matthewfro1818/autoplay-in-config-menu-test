@@ -180,7 +180,7 @@ class PlayState extends MusicBeatState
 
 	//End of wacky input stuff===================
 
-	private var autoplay:Bool = false;
+	public var autoplay:Bool = false;
 	public var preventScoreSaving:Bool = false;
 
 	public var notes:FlxTypedGroup<Note>;
@@ -667,6 +667,17 @@ class PlayState extends MusicBeatState
 		scoreTxt = new FlxTextExt(healthBarBG.x - 105, (FlxG.height * 0.9) + 36, 800, "", 22);
 		scoreTxt.setFormat(Paths.font("vcr"), 22, FlxColor.WHITE, FlxTextAlign.CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		scoreTxt.scrollFactor.set();
+
+
+		var botplayTxt:FlxTextExt = new FlxTextExt(400, healthBar.y - 90, FlxG.width - 800, "AUTOPLAY ENABLED", 32);
+		botplayTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		botplayTxt.scrollFactor.set();
+		botplayTxt.borderSize = 1.25;
+		botplayTxt.visible = !autoplay;
+		add(botplayTxt);
+		if(Config.downscroll){
+			botplayTxt.y = healthBar.y + 70;
+		}
 
 		iconP1 = new HealthIcon(boyfriend.iconName, true);
 		iconP1.y = healthBar.y - (iconP1.height / 2) + iconP1.yOffset;
